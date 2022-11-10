@@ -1,20 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { TodosService } from './todos.service';
-import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
+import { TodoDto } from './dto/todo.dto';
 
-@Controller('todos')
+@Controller('users/:userId/todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
+  create(@Body() createTodoDto: TodoDto) {
     return this.todosService.create(createTodoDto);
   }
 
   @Get()
-  findAll() {
-    return this.todosService.findAll();
+  findAll(@Param('userId') userId: string) {
+    return this.todosService.findAll(+userId);
   }
 
   @Get(':id')
@@ -23,7 +30,7 @@ export class TodosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
+  update(@Param('id') id: string, @Body() updateTodoDto: TodoDto) {
     return this.todosService.update(+id, updateTodoDto);
   }
 
