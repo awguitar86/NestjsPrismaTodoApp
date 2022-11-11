@@ -15,8 +15,8 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  create(@Body() createTodoDto: TodoDto) {
-    return this.todosService.create(createTodoDto);
+  create(@Param('userId') userId: string, @Body() createTodoDto: TodoDto) {
+    return this.todosService.create({ userId, ...createTodoDto });
   }
 
   @Get()
@@ -30,8 +30,12 @@ export class TodosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: TodoDto) {
-    return this.todosService.update(+id, updateTodoDto);
+  update(
+    @Param('userId') userId: string,
+    @Param('id') id: string,
+    @Body() updateTodoDto: TodoDto,
+  ) {
+    return this.todosService.update(+id, { userId, ...updateTodoDto });
   }
 
   @Delete(':id')
