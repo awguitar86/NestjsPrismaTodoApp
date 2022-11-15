@@ -1,41 +1,41 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Param,
-  Patch,
-  Delete,
+  Put,
+  Request,
+  UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@Controller('users')
+@ApiTags('user')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Put('update/password')
+  public async updatePassword(
+    @Request() req,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    await this.usersService.updatePassword(updatePasswordDto, req.user.id);
+    return { message: 'password_update_success' };
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOneById(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() userDto: CreateUserDto) {
-    return this.usersService.update(+id, userDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  public async findOne(@Param('id') id: string) {
+    return await this.usersService.findOneById(+id);
   }
 }

@@ -6,40 +6,67 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { TodosService } from './todos.service';
 import { TodoDto } from './dto/todo.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@Controller('users/:userId/todos')
+@ApiTags('todos')
+@Controller('user/:userId/todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post()
-  create(@Param('userId') userId: string, @Body() createTodoDto: TodoDto) {
-    return this.todosService.create({ userId, ...createTodoDto });
+  public async create(
+    @Param('userId') userId: string,
+    @Body() createTodoDto: TodoDto,
+  ) {
+    return this.todosService.create({ userId: +userId, ...createTodoDto });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  findAll(@Param('userId') userId: string) {
-    return this.todosService.findAll(+userId);
+  public async findAll(@Param('userId') userId: string) {
+    return await this.todosService.findAll(+userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todosService.findOne(+id);
+  public async findOne(@Param('id') id: string) {
+    return await this.todosService.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Patch(':id')
-  update(
+  public async update(
     @Param('userId') userId: string,
     @Param('id') id: string,
     @Body() updateTodoDto: TodoDto,
   ) {
-    return this.todosService.update(+id, { userId, ...updateTodoDto });
+    return await this.todosService.update(+id, {
+      userId: +userId,
+      ...updateTodoDto,
+    });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  public async remove(@Param('id') id: string) {
     return this.todosService.remove(+id);
   }
 }
