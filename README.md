@@ -1,4 +1,4 @@
-#NestJS Prisma ToDo App
+# NestJS Prisma ToDo App
 
 ## Running the app
 
